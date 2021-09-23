@@ -4,7 +4,7 @@ RSpec.describe Article, type: :model do
   describe "#validations" do
     let(:article) { build(:article) }
 
-    it 'tests that factory is valid' do
+    it 'tests that object is valid' do
       expect(article).to be_valid
       article.save!
       another_article = build(:article)
@@ -34,6 +34,17 @@ RSpec.describe Article, type: :model do
       article2 = build(:article, slug: article1.slug)
       expect(article2).not_to be_valid
       expect(article2.errors[:slug]).to include("has already been taken")
+    end
+
+  describe '.recent' do
+    it "return article in correct order" do
+      older_article = create(:article, created_at: 1.hour.ago)
+      recent_article = create(:article)
+      expect(described_class.recent).to eq([recent_article, older_article])
+
+      recent_article.update_column(:created_at, 2.hour.ago )
+      expect(described_class.recent).to eq([older_article, recent_article])
+      end
     end
   end
 end
